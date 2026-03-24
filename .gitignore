@@ -26,6 +26,7 @@ node_modules/
 
 # Secrets and credentials
 *.env
+.venv/
 .env.local
 secrets/
 *.pem
