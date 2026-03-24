@@ -1,81 +1,112 @@
-# DevOps Infrastructure Provisioning & Configuration Automation
 
-## Project Overview
+# Infrastructure Automation Project
 
-This project is a **Python-based automation tool** that simulates infrastructure provisioning and service configuration.  
-It allows users to define virtual machines (VMs), validates the input, stores configurations in JSON, logs actions, and simulates service installation using a Bash script.
+## Overview
+This project simulates virtual machine provisioning using Python.  
+It validates user input, logs all operations, stores configurations in JSON format, and optionally runs a Bash script to install a basic service (Nginx).
 
 ---
 
 ## Features
-
-- Accepts dynamic VM definitions from the user.
-- Validates input (name, OS, CPU, RAM, public IP) using **Pydantic**.
-- Stores VM configurations in `configs/instances.json`.
-- Logs provisioning actions and errors in `logs/provisioning.log`.
-- Simulates service installation via Bash (`scripts/install_nginx.sh`).
-- Modular, class-based design (`Machine` class in `src/machine.py`).
+- User input validation using Pydantic
+- Structured logging of all operations (success and errors)
+- Persistent storage of VM configurations in JSON
+- Bash script integration for service installation
+- Cross-platform support (Windows / Linux / WSL)
 
 ---
 
 ## Project Structure
+```
+
 infra-automation/
-├─ src/
-│ ├─ infra_simulator.py # Main Python script
-│ ├─ machine.py # Machine class
-│ └─ input_validator.py # Pydantic validators
-├─ scripts/
-│ └─ install_nginx.sh # Bash script for simulating service installation
-├─ configs/
-│ └─ instances.json # VM definitions stored here
-├─ logs/
-│ └─ provisioning.log # Logs actions and errors
-├─ .venv/ # Python virtual environment
-├─ requirements.txt # Python dependencies
-└─ README.md
+├── src/
+│   ├── infra_simulator.py
+│   ├── input_validator.py
+│   └── machine.py
+├── configs/
+│   └── instances.json
+├── logs/
+│   └── provisioning.log
+├── scripts/
+│   └── install_nginx.sh
+
 
 
 ---
 
 ## Requirements
+- Python 3.10+
+- pip install pydantic
+- (Optional) WSL or Linux environment for Bash script execution
 
-- Python 3.14+  
-- Bash (for running service simulation, works on Linux/WSL/macOS)  
-- Python packages: see `requirements.txt`
+---
 
-Install dependencies:
+## How to Run
 
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-.venv\Scripts\activate     # Windows
-pip install -r requirements.txt
+### 1. Run the simulator
+From the project root directory:
 
-
-How to Run
-
-Run the main script from the project root:
+```
 
 python -m src.infra_simulator
 
-You will be prompted for:
+```
 
-VM Name – 2-20 alphanumeric characters
+### 2. Provide input
+Follow the prompts:
+- VM name (2–20 alphanumeric characters)
+- Operating system (from predefined list)
+- CPU cores
+- RAM (must match CPU requirements)
+- Public IP (yes/no)
 
-OS – must be one of: ubuntu-24.04-lts, ubuntu-22.04-lts, debian-12, centos-8
+### 3. Output
+- VM data is saved to:
+```
 
-CPU cores – allowed: 1, 2, 4, 8
+configs/instances.json
 
-RAM GB – must match CPU (1→2, 2→4, 4→8, 8→16)
+```
+- Logs are written to:
+```
 
-Public IP – y/n or yes/no
+logs/provisioning.log
 
-After input, the tool will:
+```
 
-Create a Machine object
+---
 
-Save it to configs/instances.json
+## Bash Script (Nginx Installation)
 
-Log all actions in logs/provisioning.log
+The project includes a Bash script that installs Nginx.
 
-Run the Bash script to simulate service installation
+### On Linux / WSL
+The script runs automatically after provisioning.
+
+### On Windows
+The script is skipped automatically.
+
+To run manually in WSL:
+```
+
+bash scripts/install_nginx.sh
+
+```
+
+---
+
+## Notes
+- If `instances.json` does not exist, it will be created automatically.
+- If the file is corrupted or empty, it will be reset.
+- Bash execution is optional and does not affect the core functionality.
+
+---
+
+## Summary
+This project demonstrates:
+- Input validation
+- Logging and error handling
+- File-based persistence (JSON)
+- Integration between Python and Bash using subprocess
+

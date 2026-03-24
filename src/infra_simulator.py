@@ -7,13 +7,15 @@ from src.input_validator import MachineConfig, generate_public_ip
 from src.machine import Machine
 
 # ------------------------
-# הגדרות בסיסיות
+# Base directories
 # ------------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_PATH = os.path.join(BASE_DIR, "configs", "instances.json")
 LOG_FILE = os.path.join(BASE_DIR, "logs", "provisioning.log")
 
-# הגדרת logging
+# ------------------------
+# Logging setup
+# ------------------------
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 logging.basicConfig(
     filename=LOG_FILE,
@@ -23,32 +25,31 @@ logging.basicConfig(
 )
 
 # ------------------------
-# קלט משתמש
+# User input
 # ------------------------
 def get_user_input() -> MachineConfig:
     print("=== VM Provisioning ===")
     print("Valid OS examples: ubuntu-24.04-lts, ubuntu-22.04-lts, debian-12, centos-8")
 
-    # שם VM
+    # VM name
     while True:
         name = input("VM name (2-20 chars, letters+digits): ").strip()
         try:
-            vm_name = MachineConfig(name=name, os="ubuntu-22.04-lts", cpu=1, ram_gb=2).name
+            MachineConfig(name=name, os="ubuntu-22.04-lts", cpu=1, ram_gb=2)
             break
         except Exception:
             print("❌ Invalid name. Use 2-20 letters/digits only")
 
-    # מערכת הפעלה
+    # OS type
     valid_oses = ['ubuntu-24.04-lts', 'ubuntu-22.04-lts', 'debian-12', 'centos-8']
     while True:
-        os_type = input(f"OS {valid_oses}: ").strip()
-        if os_type.lower().replace(" ", "-") in valid_oses:
-            os_type = os_type.lower().replace(" ", "-")
+        os_type = input(f"OS {valid_oses}: ").strip().lower().replace(" ", "-")
+        if os_type in valid_oses:
             break
         else:
             print("❌ Invalid OS")
 
-    # CPU
+    # CPU cores
     valid_cpus = [1, 2, 4, 8]
     while True:
         try:
@@ -84,7 +85,7 @@ def get_user_input() -> MachineConfig:
         else:
             print("❌ Please enter y/n/yes/no")
 
-    # יצירת MachineConfig עם ולידציה
+    # Create Pydantic model
     vm_config = MachineConfig(
         name=name,
         os=os_type,
@@ -95,7 +96,7 @@ def get_user_input() -> MachineConfig:
     return vm_config
 
 # ------------------------
-# שמירת VM ל-JSON
+# Save VM to JSON
 # ------------------------
 def save_machine(machine: Machine) -> None:
     os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
@@ -111,19 +112,32 @@ def save_machine(machine: Machine) -> None:
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(instances, f, indent=2, ensure_ascii=False)
 
-    logging.info(f"Saved VM '{machine.name}' to {CONFIG_PATH}")
+    logging.info(f"Created machine object: {machine}")
+    logging.info(f"Saved VM to JSON: {machine.to_dict()}")
     print(f"✓ Machine '{machine.name}' created successfully")
     print(f"✓ Saved VM to {CONFIG_PATH}")
 
 # ------------------------
-# קריאה ל-Bash Script להתקנת שירות
+# Run Bash Script (optional)
 # ------------------------
-def install_service():
+def run_bash_script():
     script_path = os.path.join(BASE_DIR, "scripts", "install_nginx.sh")
+    
+    if os.name == "nt":
+        print("Service installation skipped on Windows. Run Bash script manually in WSL.")
+        logging.info("Windows detected: Bash script skipped.")
+        return
+
+    if not os.path.exists(script_path):
+        print(f"[WARNING] Bash script not found: {script_path}")
+        logging.warning(f"Bash script not found: {script_path}")
+        return
+
     try:
         subprocess.run(["bash", script_path], check=True)
         logging.info("Service installation script executed successfully")
     except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Service installation failed: {e}")
         logging.error(f"Service installation failed: {e}")
 
 # ------------------------
@@ -131,9 +145,10 @@ def install_service():
 # ------------------------
 def main() -> None:
     try:
+        logging.info("=== Starting VM provisioning ===")
         vm_config = get_user_input()
 
-        # המרה מ-Pydantic model למחלקת Machine
+        # Convert Pydantic model to Machine object
         machine = Machine(
             name=vm_config.name,
             os=vm_config.os,
@@ -143,7 +158,8 @@ def main() -> None:
         )
 
         save_machine(machine)
-        install_service()
+        run_bash_script()
+        logging.info("=== VM provisioning finished ===")
 
     except Exception as e:
         logging.error(f"Error during provisioning: {e}")

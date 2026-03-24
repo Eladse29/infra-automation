@@ -1,10 +1,9 @@
 from datetime import datetime
 from typing import Any, Dict
 
-
 class Machine:
     """
-    מייצגת מכונה וירטואלית אחת במערכת.
+    Represents a single virtual machine.
     """
 
     def __init__(
@@ -25,8 +24,8 @@ class Machine:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        מחזירה ייצוג מילון (dictionary) של המכונה,
-        מתאים לכתיבה ל-JSON או ללוגים.
+        Returns a dictionary representation of the machine,
+        suitable for JSON or logging.
         """
         return {
             "name": self.name,
