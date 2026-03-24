@@ -17,7 +17,7 @@ It validates user input, logs all operations, stores configurations in JSON form
 ---
 
 ## Project Structure
-```
+
 
 infra-automation/
 ├── src/
@@ -30,7 +30,6 @@ infra-automation/
 │   └── provisioning.log
 ├── scripts/
 │   └── install_nginx.sh
-
 
 
 ---
@@ -47,11 +46,8 @@ infra-automation/
 ### 1. Run the simulator
 From the project root directory:
 
-```
-
 python -m src.infra_simulator
 
-```
 
 ### 2. Provide input
 Follow the prompts:
@@ -63,17 +59,12 @@ Follow the prompts:
 
 ### 3. Output
 - VM data is saved to:
-```
 
 configs/instances.json
 
-```
 - Logs are written to:
-```
 
 logs/provisioning.log
-
-```
 
 ---
 
@@ -88,11 +79,10 @@ The script runs automatically after provisioning.
 The script is skipped automatically.
 
 To run manually in WSL:
-```
+
 
 bash scripts/install_nginx.sh
 
-```
 
 ---
 
