@@ -31,7 +31,7 @@ infra-automation/
 ├── scripts/
 │   └── install_nginx.sh
 
-
+```
 
 ---
 
@@ -39,7 +39,10 @@ infra-automation/
 - Python 3.10+
 - pip install pydantic
 - (Optional) WSL or Linux environment for Bash script execution
-
+- Install dependencies with:
+```
+pip install -r requirements.txt
+```
 ---
 
 ## How to Run
